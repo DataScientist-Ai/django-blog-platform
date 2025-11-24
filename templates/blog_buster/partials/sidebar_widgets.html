@@ -1,0 +1,193 @@
+{% for widget_data in sidebar_widgets %}
+    {% with widget=widget_data.widget %}
+        {% if widget.widget_type == 'popular_posts' and widget_data.posts %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-3">
+                    {% for post in widget_data.posts %}
+                        <article class="flex gap-3">
+                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-xs text-neutral-400">{{ post.views }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-neutral-900 leading-tight line-clamp-2 mb-1">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                                </h4>
+                                <p class="text-xs text-neutral-500">{{ post.views }} views</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif widget.widget_type == 'related_posts' and widget_data.posts %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-3">
+                    {% for post in widget_data.posts %}
+                        <article class="flex gap-3">
+                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-xs text-neutral-400">Related</div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-neutral-900 leading-tight line-clamp-2 mb-1">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                                </h4>
+                                <p class="text-xs text-neutral-500">{{ post.reading_time }} min read</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif widget.widget_type == 'author_bio' and widget_data.author_bio %}
+            {% with author_bio=widget_data.author_bio %}
+                <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                    <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                    <div class="text-center">
+                        {% if author_bio.avatar %}
+                            <div class="w-16 h-16 rounded-full overflow-hidden mx-auto mb-4 bg-neutral-100">
+                                <img src="{{ author_bio.avatar.url }}" alt="Author" class="w-full h-full object-cover">
+                            </div>
+                        {% endif %}
+                        <p class="text-sm text-neutral-600 leading-relaxed">{{ author_bio.bio_text }}</p>
+                        {% if author_bio.show_social_links %}
+                            <div class="flex justify-center gap-3 mt-4">
+                                <a href="#" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-brand hover:text-white transition">
+                                    <span class="text-xs">TW</span>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-brand hover:text-white transition">
+                                    <span class="text-xs">LI</span>
+                                </a>
+                                <a href="#" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-brand hover:text-white transition">
+                                    <span class="text-xs">GH</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+        {% elif widget.widget_type == 'social_share' and widget_data.social_config %}
+            {% with social_config=widget_data.social_config %}
+                <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                    <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                    <div class="space-y-2">
+                        {% if social_config.show_facebook %}
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" rel="noopener"
+                               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition">
+                                <span class="text-sm font-semibold">Facebook</span>
+                            </a>
+                        {% endif %}
+                        {% if social_config.show_twitter %}
+                            <a href="https://twitter.com/intent/tweet?text={{ post.title|urlencode }}&url={{ request.build_absolute_uri }}" target="_blank" rel="noopener"
+                               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-sky-500 text-white hover:bg-sky-600 transition">
+                                <span class="text-sm font-semibold">Twitter</span>
+                            </a>
+                        {% endif %}
+                        {% if social_config.show_linkedin %}
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" target="_blank" rel="noopener"
+                               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-700 text-white hover:bg-blue-800 transition">
+                                <span class="text-sm font-semibold">LinkedIn</span>
+                            </a>
+                        {% endif %}
+                        {% if social_config.show_pinterest %}
+                            <a href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}&description={{ post.title|urlencode }}" target="_blank" rel="noopener"
+                               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-red-600 text-white hover:bg-red-700 transition">
+                                <span class="text-sm font-semibold">Pinterest</span>
+                            </a>
+                        {% endif %}
+                        {% if social_config.show_email %}
+                            <a href="mailto:?subject={{ post.title|urlencode }}&body={{ request.build_absolute_uri }}"
+                               class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-neutral-600 text-white hover:bg-neutral-700 transition">
+                                <span class="text-sm font-semibold">Email</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+        {% elif widget.widget_type == 'newsletter' and widget_data.newsletter_config %}
+            {% with newsletter_config=widget_data.newsletter_config %}
+                <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                    <h3 class="text-lg font-serif text-neutral-900 mb-3">{{ widget.title }}</h3>
+                    <p class="text-sm text-neutral-600 mb-4">{{ newsletter_config.description }}</p>
+                    <form class="space-y-3">
+                        <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none">
+                        <button type="submit" class="w-full px-4 py-3 rounded-xl bg-brand text-white font-semibold hover:bg-brand-dark transition">
+                            {{ newsletter_config.button_text }}
+                        </button>
+                    </form>
+                    <p class="text-xs text-neutral-500 mt-3">{{ newsletter_config.privacy_text }}</p>
+                </div>
+            {% endwith %}
+        {% elif widget.widget_type == 'categories' and widget_data.categories %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-2">
+                    {% for category in widget_data.categories %}
+                        <a href="{{ category.get_absolute_url }}" class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-neutral-50 transition">
+                            <span class="text-sm font-medium text-neutral-900">{{ category.name }}</span>
+                            {% if widget_data.show_post_count %}
+                                <span class="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded-full">{{ category.post_count }}</span>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif widget.widget_type == 'recent_posts' and widget_data.posts %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-3">
+                    {% for post in widget_data.posts %}
+                        <article class="flex gap-3">
+                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 flex-shrink-0">
+                                {% if post.featured_image %}
+                                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-xs text-neutral-400">New</div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-semibold text-neutral-900 leading-tight line-clamp-2 mb-1">
+                                    <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                                </h4>
+                                <p class="text-xs text-neutral-500">{{ post.published_at|date:"M d, Y" }}</p>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif widget.widget_type == 'quick_tips' and widget_data.tips %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-4">
+                    {% for tip in widget_data.tips %}
+                        <div class="p-4 rounded-xl bg-neutral-50 border border-neutral-100">
+                            <h4 class="text-sm font-semibold text-neutral-900 mb-2">{{ tip.title }}</h4>
+                            <p class="text-xs text-neutral-600">{{ tip.description }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif widget.widget_type == 'buying_guides' and widget_data.guides %}
+            <div class="bg-white rounded-[32px] p-6 shadow-card border border-neutral-100">
+                <h3 class="text-lg font-serif text-neutral-900 mb-4">{{ widget.title }}</h3>
+                <div class="space-y-3">
+                    {% for guide in widget_data.guides %}
+                        <article class="p-3 rounded-xl hover:bg-neutral-50 transition">
+                            <h4 class="text-sm font-semibold text-neutral-900 mb-1">
+                                <a href="{{ guide.get_absolute_url }}" class="hover:text-brand transition">{{ guide.title }}</a>
+                            </h4>
+                            <p class="text-xs text-neutral-600">{{ guide.summary|truncatewords:10 }}</p>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endfor %}

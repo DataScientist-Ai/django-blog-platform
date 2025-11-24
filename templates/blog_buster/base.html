@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BlogBuster - Tech Blog{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    {% load static %}
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#0066cc',
+                            dark: '#004f9e',
+                            accent: '#00a8e8',
+                        },
+                        neutral: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5f5',
+                            600: '#475569',
+                            800: '#1e293b',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    boxShadow: {
+                        card: '0 15px 30px rgba(15, 23, 42, 0.08)',
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-neutral-50 text-neutral-800 font-sans">
+    <header class="bg-white shadow-sm sticky top-0 z-30 border-b border-neutral-200/80 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <nav class="max-w-6xl mx-auto px-5 lg:px-8 py-4 flex items-center justify-between gap-6">
+            <a href="{% url 'index' %}" class="text-2xl font-semibold tracking-tight flex items-center gap-2">
+                <span class="text-neutral-800">Blog</span>
+                <span class="text-brand">Buster</span>
+            </a>
+            <button class="lg:hidden inline-flex flex-col gap-1.5" aria-label="Toggle menu" id="mobile-menu-toggle">
+                <span class="w-6 h-0.5 bg-neutral-800"></span>
+                <span class="w-6 h-0.5 bg-neutral-800"></span>
+                <span class="w-6 h-0.5 bg-neutral-800"></span>
+            </button>
+            <div class="flex-1 hidden lg:flex justify-center">
+                <ul class="flex items-center gap-8 text-sm font-medium">
+                    <li><a href="{% url 'index' %}" class="hover:text-brand transition">Home</a></li>
+                    <li><a href="{% url 'post_list' %}" class="hover:text-brand transition">All Posts</a></li>
+                    <li class="relative group">
+                        <button class="flex items-center gap-1 hover:text-brand transition">
+                            Categories
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <div class="absolute top-8 left-1/2 -translate-x-1/2 pt-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition">
+                            <div class="bg-white rounded-2xl shadow-card border border-neutral-100 min-w-[220px]">
+                                <div class="py-3">
+                                    {% for category in categories %}
+                                        <a href="{{ category.get_absolute_url }}" class="flex items-center justify-between px-5 py-2.5 text-sm hover:bg-neutral-50 transition">
+                                            <span>{{ category.name }}</span>
+                                            <svg class="w-3.5 h-3.5 text-neutral-400" viewBox="0 0 16 16" fill="none">
+                                                <path d="M6 4L10 8L6 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                    {% empty %}
+                                        <span class="px-5 py-2 text-sm text-neutral-500 block">No categories yet</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li><a href="#" class="hover:text-brand transition">About</a></li>
+                </ul>
+            </div>
+            <a href="{% url 'post_list' %}" class="hidden lg:inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 text-white text-sm font-semibold hover:bg-brand-dark transition">
+                Explore Articles
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </nav>
+        <div id="mobile-menu" class="lg:hidden hidden border-t border-neutral-200 bg-white">
+            <div class="px-5 py-4 flex flex-col gap-4 text-sm font-medium">
+                <a href="{% url 'index' %}" class="flex justify-between items-center py-1">Home</a>
+                <a href="{% url 'post_list' %}" class="flex justify-between items-center py-1">All Posts</a>
+                <div>
+                    <div class="text-neutral-500 uppercase text-xs mb-2">Categories</div>
+                    <div class="flex flex-wrap gap-2">
+                        {% for category in categories %}
+                        <a href="{{ category.get_absolute_url }}" class="px-3 py-1.5 rounded-full border border-neutral-200 text-xs">{{ category.name }}</a>
+                        {% empty %}
+                        <span class="text-neutral-400 text-xs">No categories yet</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <a href="#" class="flex justify-between items-center py-1">About</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-10">
+        {% if messages %}
+            <div class="max-w-5xl mx-auto mb-8 px-5">
+                {% for message in messages %}
+                    <div class="p-4 rounded-2xl border border-neutral-200 bg-white shadow-sm mb-3 text-sm font-medium">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-neutral-900 text-white mt-16">
+        <div class="max-w-6xl mx-auto px-5 lg:px-8 py-12 grid gap-10 md:grid-cols-3">
+            <div>
+                <h3 class="text-2xl font-semibold mb-3">BlogBuster</h3>
+                <p class="text-white/70 leading-relaxed">Your Lifewire-inspired source for tech reviews, troubleshooting guides, and digital lifestyle advice.</p>
+            </div>
+            <div>
+                <h4 class="uppercase text-xs tracking-widest text-white/60 mb-4">Quick Links</h4>
+                <ul class="space-y-3 text-sm text-white/80">
+                    <li><a href="{% url 'index' %}" class="hover:text-white transition">Home</a></li>
+                    <li><a href="{% url 'post_list' %}" class="hover:text-white transition">All Posts</a></li>
+                    <li><a href="#" class="hover:text-white transition">About</a></li>
+                    <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="uppercase text-xs tracking-widest text-white/60 mb-4">Popular Categories</h4>
+                <div class="flex flex-wrap gap-2">
+                    {% for category in categories|slice:":6" %}
+                    <a href="{{ category.get_absolute_url }}" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/80 hover:bg-white hover:text-neutral-900 transition">
+                        {{ category.name }}
+                    </a>
+                    {% empty %}
+                    <span class="text-white/60 text-sm">No categories yet</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/10">
+            <div class="max-w-6xl mx-auto px-5 lg:px-8 py-5 text-xs text-white/60 flex flex-col md:flex-row justify-between gap-3">
+                <span>&copy; {% now "Y" %} BlogBuster. Crafted with Tailwind.</span>
+                <span>Inspired by Lifewire's editorial design.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const toggle = document.getElementById('mobile-menu-toggle');
+        const menu = document.getElementById('mobile-menu');
+        if (toggle && menu) {
+            toggle.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

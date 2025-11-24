@@ -1,0 +1,97 @@
+{% extends 'blog_buster/base.html' %}
+{% load static %}
+
+{% block title %}All Posts - BlogBuster{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-5 space-y-10">
+    <div class="text-center space-y-4">
+        <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Editorial feed</p>
+        <h1 class="text-4xl font-serif text-neutral-900">All Posts</h1>
+        <p class="text-neutral-500 max-w-2xl mx-auto">Curated explainers, reviews, and step-by-step fixes inspired by Lifewire's signature tone.</p>
+    </div>
+
+    <form method="get" action="{% url 'post_list' %}" class="max-w-3xl mx-auto flex flex-col sm:flex-row gap-3">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search posts…" class="flex-1 px-4 py-3 rounded-2xl border border-neutral-200 bg-white shadow-sm focus:ring-2 focus:ring-brand focus:outline-none">
+        <button type="submit" class="px-6 py-3 rounded-2xl bg-neutral-900 text-white font-semibold text-sm shadow-lg hover:-translate-y-0.5 transition">Search</button>
+    </form>
+
+    <div class="bg-white rounded-3xl border border-neutral-100 p-5 shadow-sm">
+        <div class="flex flex-wrap gap-2 items-center mb-3 text-xs uppercase tracking-[0.4em] text-neutral-400">
+            <span>Categories</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_tag %}tag={{ selected_tag }}&{% endif %}" class="px-3 py-1.5 rounded-full text-xs font-semibold border {% if not selected_category %}bg-neutral-900 text-white border-neutral-900{% else %}border-neutral-200 text-neutral-600{% endif %}">All</a>
+            {% for category in categories %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}category={{ category.slug }}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}" class="px-3 py-1.5 rounded-full text-xs font-semibold border {% if selected_category == category.slug %}bg-brand text-white border-brand{% else %}border-neutral-200 text-neutral-600{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+        {% if tags %}
+        <div class="mt-6">
+            <div class="flex flex-wrap gap-2 items-center mb-3 text-xs uppercase tracking-[0.4em] text-neutral-400">
+                <span>Tags</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for tag in tags %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}tag={{ tag.slug }}" class="px-3 py-1.5 rounded-full text-xs font-semibold border {% if selected_tag == tag.slug %}bg-neutral-900 text-white border-neutral-900{% else %}border-neutral-200 text-neutral-600 hover:border-neutral-400{% endif %}">
+                    #{{ tag.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for post in posts %}
+            <article class="bg-white rounded-3xl border border-neutral-100 p-5 flex flex-col h-full shadow-sm hover:shadow-card transition">
+                <div class="rounded-2xl overflow-hidden bg-neutral-100 aspect-[4/3] mb-4">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-xs uppercase tracking-[0.4em] text-neutral-400">Blog</div>
+                    {% endif %}
+                </div>
+                <div class="flex-1 flex flex-col gap-3">
+                    {% if post.category %}
+                        <a href="{{ post.category.get_absolute_url }}" class="text-xs font-semibold uppercase tracking-wide text-brand">{{ post.category.name }}</a>
+                    {% endif %}
+                    <h3 class="text-xl font-semibold text-neutral-900 leading-snug">
+                        <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                    </h3>
+                    <p class="text-sm text-neutral-600 line-clamp-3">{{ post.excerpt|truncatewords:24 }}</p>
+                    <div class="mt-auto flex items-center justify-between text-xs text-neutral-500 pt-4 border-t border-neutral-100">
+                        <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                        <span>{{ post.published_at|date:"M d, Y" }} · {{ post.reading_time }} min</span>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="col-span-full text-center bg-white border border-neutral-100 rounded-3xl p-10 text-neutral-500">
+                {% if search_query %}
+                    No posts found for “{{ search_query }}”. Try another search term.
+                {% else %}
+                    No posts available yet. Add one through the admin panel.
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="flex flex-wrap items-center justify-center gap-3 text-sm font-medium">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}" class="px-4 py-2 rounded-2xl border border-neutral-200 bg-white">« First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="px-4 py-2 rounded-2xl border border-neutral-200 bg-white">‹ Prev</a>
+            {% endif %}
+            <span class="px-5 py-2 rounded-2xl bg-neutral-900 text-white">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="px-4 py-2 rounded-2xl border border-neutral-200 bg-white">Next ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}" class="px-4 py-2 rounded-2xl border border-neutral-200 bg-white">Last »</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

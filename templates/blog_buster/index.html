@@ -1,0 +1,289 @@
+{% extends 'blog_buster/base.html' %}
+{% load static %}
+
+{% block title %}Home - BlogBuster{% endblock %}
+
+{% block content %}
+<section class="bg-gradient-to-r from-brand to-brand-accent text-white rounded-[32px] mx-5 lg:mx-auto max-w-6xl px-8 sm:px-12 py-16 shadow-card">
+    <div class="max-w-2xl space-y-6">
+        <p class="text-sm uppercase tracking-[0.4em] text-white/70">{{ homepage_settings.hero_overline }}</p>
+        <h1 class="text-4xl sm:text-5xl font-serif leading-tight">{{ homepage_settings.hero_heading }}</h1>
+        <p class="text-lg text-white/80">{{ homepage_settings.hero_subheading }}</p>
+        <div class="flex flex-wrap gap-3">
+            <a href="{% url 'post_list' %}" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-brand font-semibold text-sm shadow-lg hover:-translate-y-0.5 transition">
+                {{ homepage_settings.hero_primary_cta_label }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            <a href="#latest" class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition">
+                {{ homepage_settings.hero_secondary_cta_label }}
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-5 mt-12 space-y-16">
+    {% if featured_posts %}
+        {% for post in featured_posts %}
+            <article class="grid lg:grid-cols-2 gap-10 bg-white rounded-[32px] p-6 sm:p-10 shadow-card border border-neutral-100">
+                <div class="space-y-5">
+                    {% if post.category %}
+                        <a href="{{ post.category.get_absolute_url }}" class="inline-flex px-4 py-1.5 rounded-full bg-brand/10 text-brand text-xs font-semibold tracking-wide uppercase">
+                            {{ post.category.name }}
+                        </a>
+                    {% endif %}
+                    <h2 class="text-3xl sm:text-4xl font-serif text-neutral-900 leading-snug">
+                        <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                    </h2>
+                    <p class="text-neutral-600 text-lg leading-relaxed">{{ post.excerpt }}</p>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-neutral-500">
+                        <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>{{ post.published_at|date:"M d, Y" }}</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>{{ post.reading_time }} min read</span>
+                    </div>
+                </div>
+                <div class="rounded-3xl bg-neutral-100 min-h-[280px] overflow-hidden flex items-center justify-center">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center text-neutral-400 text-sm tracking-[0.4em] uppercase">Feature</div>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+    {% endif %}
+
+    <section id="latest" class="space-y-8">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Fresh reads</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Latest articles</h2>
+            </div>
+            <a href="{% url 'post_list' %}" class="text-sm font-semibold text-brand hover:text-brand-dark transition hidden sm:inline-flex items-center gap-2">View all <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for post in recent_posts %}
+                <article class="bg-white rounded-3xl border border-neutral-100 p-4 flex flex-col h-full shadow-sm hover:shadow-card transition">
+                    <div class="rounded-2xl overflow-hidden bg-neutral-100 aspect-[16/10] mb-4">
+                        {% if post.featured_image %}
+                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center text-neutral-400 text-xs uppercase tracking-[0.4em]">Tech</div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 flex flex-col gap-3">
+                        {% if post.category %}
+                            <a href="{{ post.category.get_absolute_url }}" class="text-xs font-semibold uppercase tracking-wide text-brand">{{ post.category.name }}</a>
+                        {% endif %}
+                        <h3 class="text-xl font-semibold text-neutral-900 leading-snug">
+                            <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                        </h3>
+                        <p class="text-sm text-neutral-600 line-clamp-3">{{ post.excerpt|truncatewords:24 }}</p>
+                        <div class="mt-auto flex items-center justify-between text-xs text-neutral-500 pt-4 border-t border-neutral-100">
+                            <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                            <span>{{ post.published_at|date:"M d" }} · {{ post.reading_time }} min</span>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="col-span-full text-center text-neutral-500 py-10">No posts available yet. Add one through the admin panel.</p>
+            {% endfor %}
+        </div>
+
+        <div class="text-center sm:hidden">
+            <a href="{% url 'post_list' %}" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-900 text-white text-sm font-semibold">View all posts →</a>
+        </div>
+    </section>
+
+    {% if trending_posts %}
+    <section class="space-y-6">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Trending now</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Most-read this week</h2>
+            </div>
+            <a href="{% url 'post_list' %}" class="text-sm font-semibold text-brand hover:text-brand-dark transition hidden sm:inline-flex items-center gap-2">See feed →</a>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2">
+            {% for post in trending_posts %}
+            <article class="flex flex-col sm:flex-row gap-4 bg-white rounded-3xl border border-neutral-100 p-4 shadow-sm hover:shadow-card transition">
+                <div class="w-full sm:w-40 h-32 rounded-2xl overflow-hidden bg-neutral-100 flex-shrink-0">
+                    {% if post.featured_image %}
+                        <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-xs uppercase tracking-[0.4em] text-neutral-400">Hot</div>
+                    {% endif %}
+                </div>
+                <div class="flex-1 space-y-2">
+                    <div class="text-xs uppercase tracking-wide text-brand font-semibold">{{ post.category.name }}</div>
+                    <h3 class="text-lg font-semibold text-neutral-900 leading-snug">
+                        <a href="{{ post.get_absolute_url }}" class="hover:text-brand transition">{{ post.title }}</a>
+                    </h3>
+                    <p class="text-sm text-neutral-600 line-clamp-2">{{ post.excerpt|truncatewords:24 }}</p>
+                    <div class="text-xs text-neutral-500 flex items-center gap-2">
+                        <span>{{ post.reading_time }} min read</span>
+                        <span class="w-1 h-1 rounded-full bg-neutral-300"></span>
+                        <span>{{ post.views }} views</span>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if featured_guides %}
+    <section class="space-y-6">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Buying guides</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Best picks this week</h2>
+            </div>
+            <a href="{% url 'buying_guides_list' %}" class="text-sm font-semibold text-brand hover:text-brand-dark transition hidden sm:inline-flex items-center gap-2">See all →</a>
+        </div>
+        <div class="grid gap-6 md:grid-cols-3">
+            {% for guide in featured_guides %}
+            <article class="bg-white border border-neutral-100 rounded-[28px] p-6 flex flex-col gap-4 shadow-sm hover:shadow-card transition">
+                <div class="text-xs uppercase tracking-[0.4em] text-neutral-400">{{ guide.category.name|default:"Guide" }}</div>
+                <h3 class="text-xl font-semibold text-neutral-900 leading-snug">
+                    <a href="{{ guide.get_absolute_url }}" class="hover:text-brand transition">{{ guide.title }}</a>
+                </h3>
+                {% if guide.hero_quote %}
+                <p class="text-sm text-neutral-600">{{ guide.hero_quote }}</p>
+                {% endif %}
+                {% if guide.picks.all %}
+                {% with pick=guide.picks.all.0 %}
+                <div class="rounded-2xl border border-neutral-100 bg-neutral-50 p-4 text-sm text-neutral-700">
+                    <p class="text-xs uppercase tracking-[0.4em] text-brand mb-1">{{ pick.verdict }}</p>
+                    <p class="font-semibold text-neutral-900">{{ pick.title }}</p>
+                    <p class="text-xs text-neutral-500">{{ pick.tagline }}</p>
+                </div>
+                {% endwith %}
+                {% endif %}
+                <div class="text-sm font-semibold text-brand inline-flex items-center gap-2">
+                    Explore <span aria-hidden="true">→</span>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if featured_reviews %}
+    <section class="space-y-6">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Product reviews</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Hands-on verdicts</h2>
+            </div>
+            <a href="{% url 'product_reviews_list' %}" class="text-sm font-semibold text-brand hover:text-brand-dark transition hidden sm:inline-flex items-center gap-2">Browse reviews →</a>
+        </div>
+        <div class="grid gap-6 md:grid-cols-3">
+            {% for review in featured_reviews %}
+            <article class="bg-white border border-neutral-100 rounded-[28px] p-6 shadow-sm hover:shadow-card transition flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <p class="text-xs uppercase tracking-[0.4em] text-neutral-400">Score</p>
+                    <span class="text-sm font-semibold text-neutral-900">{{ review.overall_score }}/10</span>
+                </div>
+                <h3 class="text-xl font-semibold text-neutral-900 leading-snug">
+                    <a href="{{ review.get_absolute_url }}" class="hover:text-brand transition">{{ review.product_name }}</a>
+                </h3>
+                <p class="text-sm text-neutral-600">{{ review.verdict }}</p>
+                <div class="space-y-1 text-sm text-neutral-500">
+                    {% for score in review.scores.all|slice:":3" %}
+                    <div class="flex items-center justify-between">
+                        <span>{{ score.label }}</span>
+                        <span>{{ score.score }}/10</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if featured_howtos %}
+    <section class="space-y-6">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">How-To Series</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Step-by-step explainers</h2>
+            </div>
+            <a href="{% url 'howto_list' %}" class="text-sm font-semibold text-brand hover:text-brand-dark transition hidden sm:inline-flex items-center gap-2">View tutorials →</a>
+        </div>
+        <div class="grid gap-6 md:grid-cols-3">
+            {% for series in featured_howtos %}
+            <article class="bg-white border border-neutral-100 rounded-[28px] p-6 shadow-sm hover:shadow-card transition flex flex-col gap-3">
+                <div class="flex items-center justify-between text-xs text-neutral-500">
+                    <span class="capitalize">{{ series.difficulty }}</span>
+                    {% if series.estimated_time %}<span>{{ series.estimated_time }}</span>{% endif %}
+                </div>
+                <h3 class="text-xl font-semibold text-neutral-900 leading-snug">
+                    <a href="{{ series.get_absolute_url }}" class="hover:text-brand transition">{{ series.title }}</a>
+                </h3>
+                <p class="text-sm text-neutral-600 line-clamp-3">{{ series.intro }}</p>
+                <div class="text-xs uppercase tracking-[0.4em] text-neutral-400 mt-auto">{{ series.steps.count }} steps</div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="grid gap-6 lg:grid-cols-[2fr,1fr]">
+        <div class="bg-white rounded-[32px] p-6 sm:p-10 shadow-card border border-neutral-100 space-y-6">
+            <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Quick tips</p>
+            <h2 class="text-3xl font-serif text-neutral-900">Lifewire-style tech hygiene</h2>
+            <div class="grid gap-4 sm:grid-cols-2">
+                {% for tip in quick_tips %}
+                <div class="border border-neutral-100 rounded-2xl p-4 bg-neutral-50">
+                    <h3 class="text-sm font-semibold text-neutral-900">{{ tip.title }}</h3>
+                    <p class="text-sm text-neutral-600 mt-2">{{ tip.description }}</p>
+                </div>
+                {% empty %}
+                <p class="text-sm text-neutral-500">Add your first quick tip from the admin panel to display it here.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="bg-neutral-900 text-white rounded-[32px] p-6 sm:p-10 flex flex-col gap-5 shadow-card">
+            <p class="text-sm uppercase tracking-[0.4em] text-white/60">{{ homepage_settings.newsletter_overline }}</p>
+            <h2 class="text-3xl font-serif leading-snug">{{ homepage_settings.newsletter_heading }}</h2>
+            <p class="text-white/70 text-sm leading-relaxed">{{ homepage_settings.newsletter_body }}</p>
+            <form class="flex flex-col gap-3">
+                <input type="email" placeholder="Email address" class="px-4 py-3 rounded-2xl text-neutral-900" required>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-white text-neutral-900 text-sm font-semibold hover:-translate-y-0.5 transition">
+                    {{ homepage_settings.newsletter_cta_label }}
+                </button>
+            </form>
+            <p class="text-xs text-white/60">{{ homepage_settings.newsletter_disclaimer }}</p>
+        </div>
+    </section>
+
+    {% if category_spotlight %}
+    <section class="space-y-6">
+        <div class="flex items-baseline justify-between">
+            <div>
+                <p class="text-sm uppercase tracking-[0.4em] text-neutral-400">Deep dives</p>
+                <h2 class="text-3xl font-serif text-neutral-900">Category spotlight</h2>
+            </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {% for category in category_spotlight %}
+            <a href="{{ category.get_absolute_url }}" class="group bg-white rounded-3xl border border-neutral-100 p-5 shadow-sm hover:shadow-card transition flex flex-col gap-3">
+                <div class="text-xs uppercase tracking-[0.4em] text-neutral-400">Category</div>
+                <h3 class="text-xl font-semibold text-neutral-900">{{ category.name }}</h3>
+                <p class="text-sm text-neutral-600 line-clamp-3">{{ category.description|default:"Lifewire-inspired guides curated for this theme." }}</p>
+                <div class="text-sm font-semibold text-brand group-hover:gap-3 inline-flex items-center gap-1 transition">Explore <span aria-hidden="true">→</span></div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+

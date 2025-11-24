@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=your-production-secret-key
+      - ALLOWED_HOSTS=localhost,127.0.0.1,yourdomain.com
+    depends_on:
+      - db
+    command: gunicorn blogbuster.wsgi:application --bind 0.0.0.0:8000
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=blogbuster
+      - POSTGRES_USER=blogbuster
+      - POSTGRES_PASSWORD=changeme123
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
